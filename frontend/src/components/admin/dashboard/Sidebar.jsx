@@ -47,7 +47,7 @@ const menuItems = [
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen z-40 bg-gray-100 overflow-hidden">
       {/* Sidebar */}
       <div
         className={`bg-gray-900 text-white fixed lg:static lg:w-1/5 w-64 h-full p-5 transform transition-all duration-300 ease-in-out shadow-lg ${
