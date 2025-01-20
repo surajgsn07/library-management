@@ -7,6 +7,7 @@ import { login } from "../../../store/authSlice";
 import { setCookie } from "../../../axiosConfig/cookieFunc";
 import HeaderForSmallScreen from "../../HeaderForSmallScreen";
 import { BiLoaderAlt } from "react-icons/bi";
+import { validatePhoneNumber } from "../../../utils/Validation";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -34,6 +35,12 @@ const Register = () => {
     setError("");
     setSuccess("");
     setIsLoading(true);
+
+    if(!validatePhoneNumber(formData.phoneNo)){
+      setError('Please enter a valid phone number.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await axiosInstance.post("/student/register", {
@@ -77,9 +84,9 @@ const Register = () => {
               { name: "class", type: "text", label: "Course" },
               { name: "rollNo", type: "number", label: "Roll Number" },
               { name: "email", type: "email", label: "Email" },
-              { name: "phoneNo", type: "text", label: "Phone Number" },
+              { name: "phoneNo", type: "text", label: "Phone Number" , placeholder:"+91 9876543210" },
               { name: "password", type: "password", label: "Password" },
-            ].map(({ name, type, label }) => (
+            ].map(({ name, type, label ,placeholder}) => (
               <div key={name} className="flex flex-col">
                 <label htmlFor={name} className="block text-gray-700">
                   {label}
@@ -90,6 +97,7 @@ const Register = () => {
                   name={name}
                   value={formData[name]}
                   onChange={handleChange}
+                  placeholder={placeholder || "Enter your " + label}
                   className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#99231d] focus:border-transparent"
                   required
                 />
@@ -98,7 +106,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition lg:col-span-2 flex items-center justify-center space-x-2"
+              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:7d1d18] transition lg:col-span-2 flex items-center justify-center space-x-2"
             >
               {isLoading ? (
                 <>

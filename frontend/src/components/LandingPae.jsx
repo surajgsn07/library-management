@@ -2,7 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Header from "./Header"
 import HeaderForSmallScreen from "./HeaderForSmallScreen";
+import { useSelector } from "react-redux";
 const LandingPage = () => {
+  const user = useSelector((state) => state.auth.user);
+  const type = useSelector((state) => state.auth.type);
   return (
     <div className="bg-white text-gray-800">
       {/* Hero Section */}
@@ -19,7 +22,7 @@ const LandingPage = () => {
             <div className="mt-6 flex justify-center md:justify-start">
               <a
                 href="#features"
-                className="px-6 py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition"
+                className="px-6 py-3 bg-gray-900 text-white rounded-md shadow hover:bg-amber-500 transition"
               >
                 Learn More
               </a>
@@ -34,6 +37,27 @@ const LandingPage = () => {
           </div>
         </div>
       </header>
+
+      
+      {/* Dashboard Access Section */}
+      {user && (
+        <section id="dashboard-access" className="bg-gray-100 py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-900">Welcome Back, {user.name}!</h2>
+            <p className="mt-4 text-gray-700">
+              Access your dashboard to manage your tasks and explore more features.
+            </p>
+            <div className="mt-6">
+              <Link
+                to={`${type==='admin' ? "/admin/dashboard" : "/student/dashboard"}`}
+                className="px-6 py-3 bg-amber-500 text-white rounded-md shadow hover:bg-gray-400 transition"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section id="features" className="bg-gray-50 py-16">
@@ -86,7 +110,8 @@ const LandingPage = () => {
       </section>
 
       {/* Login Section */}
-      <section id="login" className="bg-gray-100 py-16">
+      {!user && (
+        <section id="login" className="bg-gray-100 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900">Login</h2>
           <p className="mt-4 text-gray-700">
@@ -95,7 +120,7 @@ const LandingPage = () => {
           <div className="mt-12 flex flex-col md:flex-row justify-center gap-6">
             <Link
               to="/student-login"
-              className="px-6 py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition"
+              className="px-6 py-3 bg-gray-900 text-white rounded-md shadow hover:bg-gray-400 transition"
             >
               Student Login
             </Link>
@@ -108,6 +133,9 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+        
+      )} 
+      
 
 
     </div>

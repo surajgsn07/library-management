@@ -81,7 +81,7 @@ const AdminLogin = () => {
             ))}
             <button
               type="submit"
-              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition flex items-center justify-center"
+              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-amber-500 transition flex items-center justify-center"
               disabled={loading} // Disable button while loading
             >
               {loading ? (
@@ -91,14 +91,7 @@ const AdminLogin = () => {
               )}
             </button>
           </form>
-          <div className="mt-4 text-center">
-            <p className="text-gray-700">
-              Don't have an account?{' '}
-              <Link to="/admin-register" className="text-gray-900">
-                Register
-              </Link>
-            </p>
-          </div>
+          
         </div>
       </div>
     </>

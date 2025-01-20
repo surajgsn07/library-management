@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axiosInstance from "../../../axiosConfig/axiosConfig.js";
 import { BiLoaderAlt } from "react-icons/bi";
+import { validateDateNotOlderThanToday } from '../../../utils/Validation.js';
 
 const SearchBooks = () => {
   const [formData, setFormData] = useState({
@@ -60,6 +61,11 @@ const SearchBooks = () => {
 
   const confirmReservation = async (id) => {
     setReservationLoading(true);
+    if(validateDateNotOlderThanToday(expectedReturnDate) === false) {
+      setError('Please enter a valid return date.');
+      setReservationLoading(false);
+      return;
+    }
     try {
       const response = await axiosInstance.post("/issue/request", { bookId: id, expectedReturnDate: expectedReturnDate });
       if (response.data) {
@@ -219,7 +225,7 @@ const SearchBooks = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-semibold mb-4 text-center">Reservation Successful!</h2>
             <p className="text-gray-600 text-center">
-              You have successfully reserved <span className="font-semibold">{selectedBook?.title}</span>.
+              You have successfully reserved <span className="font-semibold">{selectedBook?.title}</span>.<span className='font-bold text-green-700'>Collect it from the library</span>
             </p>
             <button
               onClick={closeSuccessModal}

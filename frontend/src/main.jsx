@@ -18,8 +18,10 @@ import AdminSearchBooks from "./components/admin/dashboard/SearchBook.jsx"
 import BorrowedBooks from './components/admin/dashboard/BorrowedBooks.jsx'
 import History from './components/admin/dashboard/History.jsx'
 import AddBook from './components/admin/dashboard/AddBook.jsx'
+import ExpandLibrary from "./components/student/dashboard/ExpandLibrary.jsx"
 import { Provider } from 'react-redux'
 import {store} from "./store/store.js"
+import AllBookSuggestions from './components/admin/dashboard/BookSuggestions.jsx'
 
 const router = createBrowserRouter([
   {
@@ -39,9 +41,6 @@ const router = createBrowserRouter([
         path:"/student-register",
         element:<Register/>
       },{
-        path:"/admin-register",
-        element:<AdminRegister/>
-      },{
         path:"/student/dashboard",
         element:<StudentSidebar/>,
         children:[
@@ -54,6 +53,9 @@ const router = createBrowserRouter([
           },{
             path:"/student/dashboard/profile",
             element:<ProfileComponent/>
+          },{
+            path:"/student/dashboard/expand-library",
+            element:<ExpandLibrary/>
           }
         ]
       },{
@@ -75,6 +77,12 @@ const router = createBrowserRouter([
           },{
             path:"/admin/dashboard/add-new-book",
             element:<AddBook/>
+          },{
+            path:"/admin/dashboard/book-suggestions",
+            element:<AllBookSuggestions/>
+          },{
+            path:"/admin/dashboard/add-admin",
+            element:<AdminRegister/>
           }
         ]
       }

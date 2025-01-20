@@ -2,29 +2,10 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FiLoader } from "react-icons/fi"; // Importing the loader icon from react-icons
 
-// Demo data for borrowed books
-const demoBorrowedData = [
-  {
-    id: 1,
-    book: { title: "Book A", author: "Author A" },
-    user: { name: "John Doe", email: "john.doe@example.com" },
-    issueDate: "2025-01-01",
-    expectedReturnDate: "2025-01-15",
-    type: "Borrowed",
-  },
-  {
-    id: 2,
-    book: { title: "Book B", author: "Author B" },
-    user: { name: "Jane Smith", email: "jane.smith@example.com" },
-    issueDate: "2025-01-05",
-    expectedReturnDate: "2025-01-20",
-    type: "Borrowed",
-  },
-];
 
 const BorrowedBooks = () => {
   const [filter, setFilter] = useState("");
-  const [books, setBooks] = useState(demoBorrowedData);
+  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false); // Adding a loading state
 
   const fetchBorrowedBooks = async () => {

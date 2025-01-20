@@ -90,7 +90,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition flex items-center justify-center space-x-2"
+              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-amber-500 transition flex items-center justify-center space-x-2"
             >
               {isLoading ? (
                 <>

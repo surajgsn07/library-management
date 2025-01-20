@@ -6,6 +6,8 @@ import { login } from "../../store/authSlice.js";
 import { setCookie } from '../../axiosConfig/cookieFunc.js';
 import HeaderForSmallScreen from '../HeaderForSmallScreen.jsx';
 import { FaSpinner } from 'react-icons/fa'; // Import spinner icon
+import { validatePhoneNumber } from '../../utils/Validation.js';
+import { toast } from 'react-toastify';
 
 const AdminRegister = () => {
   const [formData, setFormData] = useState({
@@ -31,16 +33,16 @@ const AdminRegister = () => {
     setError('');
     setSuccess('');
     setLoading(true); // Show the loader
+    if(validatePhoneNumber(formData.phoneNo) === false) {
+      setError('Please enter a valid phone number.');
+      setLoading(false); // Hide the loader
+      return;
+    }
 
     try {
       const response = await axiosInstance.post('/admin/register', formData);
       if (response.data) {
-        console.log("response.data : ", response.data);
-        const user = response.data.user;
-        const token = response.data.token;
-        dispatch(login({ user, type: "admin" }));
-        setCookie("accessToken", token);
-        navigate("/admin/dashboard");
+        toast.success("Registration successful!");
         setSuccess(response.data.message || 'Registration successful!');
         setFormData({
           name: '',
@@ -59,7 +61,7 @@ const AdminRegister = () => {
   return (
     <>
       <HeaderForSmallScreen />
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen my-2 bg-gray-100 flex items-center justify-center">
         <div className="bg-white shadow-md rounded-lg p-8 max-w-md w-full">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-6">
             Admin Register
@@ -70,9 +72,9 @@ const AdminRegister = () => {
             {[
               { name: 'name', type: 'text', label: 'Name' },
               { name: 'email', type: 'email', label: 'Email' },
-              { name: 'phoneNo', type: 'text', label: 'Phone Number' },
+              { name: 'phoneNo', type: 'text', label: 'Phone Number' , placeholder:"+91 9876543210" },
               { name: 'password', type: 'password', label: 'Password' },
-            ].map(({ name, type, label }) => (
+            ].map(({ name, type, label ,placeholder }) => (
               <div key={name}>
                 <label htmlFor={name} className="block text-gray-700">
                   {label}
@@ -82,6 +84,7 @@ const AdminRegister = () => {
                   id={name}
                   name={name}
                   value={formData[name]}
+                  placeholder={placeholder || "Enter your " + label}
                   onChange={handleChange}
                   className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#99231d] focus:border-transparent"
                   required
@@ -90,7 +93,7 @@ const AdminRegister = () => {
             ))}
             <button
               type="submit"
-              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-[#7d1d18] transition flex items-center justify-center"
+              className="w-full py-3 bg-gray-900 text-white rounded-md shadow hover:bg-amber-500 transition flex items-center justify-center"
               disabled={loading} // Disable button while loading
             >
               {loading ? (
@@ -100,14 +103,7 @@ const AdminRegister = () => {
               )}
             </button>
           </form>
-          <div className="mt-4 text-center">
-            <p className="text-gray-700">
-              Already have an account?{" "}
-              <Link to="/admin-login" className="text-gray-900">
-                Login
-              </Link>
-            </p>
-          </div>
+          
         </div>
       </div>
     </>

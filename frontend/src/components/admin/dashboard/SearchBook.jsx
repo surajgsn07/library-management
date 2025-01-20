@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import axios from 'axios';
 import axiosInstance from '../../../axiosConfig/axiosConfig';
 import { FiCamera } from "react-icons/fi";
+import { validateQuantity } from '../../../utils/Validation';
 
 const SearchBooks = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +62,12 @@ const SearchBooks = () => {
   // Confirm adding more books
   const confirmAddMore = async () => {
     setAddLoading(true);
-    try {
+    try { 
+      if(validateQuantity(quantityToAdd) === false) {
+        toast.error('Please enter a valid quantity');
+        setAddLoading(false);
+        return;
+      }
       const response = await axiosInstance.post('/book/add-quantity', { id: selectedBook._id, quantityToAdd: quantityToAdd });
       if (response.data) {
         const updatedBooks = books.map((book) =>

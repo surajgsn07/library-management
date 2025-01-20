@@ -65,7 +65,7 @@ const RequestedBooks = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen p-2 flex justify-center items-center">
+    <div className="bg-gray-100 min-h-screen  flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -91,7 +91,7 @@ const RequestedBooks = () => {
             {filteredBooks.length > 0 ? (
               filteredBooks.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition duration-300"
                 >
                   {/* Book Details */}

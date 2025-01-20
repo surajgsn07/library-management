@@ -6,6 +6,7 @@ import {
   FaSearch,
   FaChalkboardTeacher,
   FaSignOutAlt,
+  FaBook 
 } from "react-icons/fa"; // Icons for each menu item
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import StudentDashboard from "./DashBoard";
@@ -13,6 +14,8 @@ import BookSearch from "./Search";
 import ProfileComponent from "./Profile";
 import SearchBooks from "./Search";
 import { removeCookie } from "../../../axiosConfig/cookieFunc";
+import { useDispatch } from "react-redux";
+import { logout } from "../../../store/authSlice";
 
 const StudentSidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to toggle sidebar on small screens
@@ -35,11 +38,18 @@ const StudentSidebar = () => {
       icon: <FaUser className="h-5 w-5" />,
     },
     {
+      title: "Expand the Library",
+      path: "/student/dashboard/expand-library",
+      icon: <FaBook className="h-5 w-5" />, // Using FaBook for library
+    },
+    {
       title: "Logout",
       path: "/logout",
       icon: <FaSignOutAlt className="h-5 w-5" />,
     },
   ];
+  
+  const dispatch = useDispatch();
 
   // Function to toggle the sidebar visibility
   const toggleSidebar = () => {
@@ -70,6 +80,7 @@ const StudentSidebar = () => {
               onClick={() => {
                 if (item.path === "/logout") {
                   removeCookie("accessToken");
+                  dispatch(logout());
                   navigate("/");
                 }
               }}
@@ -116,7 +127,7 @@ const StudentSidebar = () => {
 
         {/* Main Content */}
         <div
-          className="p-6 lg:ml-1/5 h-screen pb-20"
+          className="p-2 lg:ml-1/5 h-screen pb-20"
           style={{ overflow: "scroll" }}
         >
           <Outlet />
