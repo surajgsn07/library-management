@@ -29,19 +29,24 @@ const RequestedBooks = () => {
   // Handle issuing a book
   const handleIssue = async(id) => {
     try {
+      setLoading(true)
       const response = await axiosInstance.get(`/issue/accept/${id}`);
       if(response.data){
         setBooks((books) => books.filter((book) => book.id !== id));
         toast.success('Book issued successfully');
       }
     } catch (error) {
-      
+      console.log("error : ",error);
+      toast.error('Error accepting request');
+    }finally{
+      setLoading(false);
     }
   };
 
   // Handle removing a request
   const handleRemove = async(issueId , bookId) => {
     try {
+      setLoading(true)
       const response = await axiosInstance.post("/issue/cancel-request", {
         issueId,
         bookId,
@@ -51,7 +56,10 @@ const RequestedBooks = () => {
         toast.success('Request removed successfully');
       }
     } catch (error) {
-      
+      console.log("error : " , error);
+      toast.error('Error removing request');
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -144,6 +152,7 @@ const RequestedBooks = () => {
             )}
           </div>
         )}
+
       </div>
     </div>
   );

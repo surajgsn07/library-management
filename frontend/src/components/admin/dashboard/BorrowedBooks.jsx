@@ -1,30 +1,50 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FiLoader } from "react-icons/fi"; // Importing the loader icon from react-icons
+import {toast} from "react-toastify";
 
 
 const BorrowedBooks = () => {
   const [filter, setFilter] = useState("");
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false); // Adding a loading state
+  const [loading, setLoading] = useState(false);
+  const [returnLoader, setreturnLoader] = useState(false)
 
   const fetchBorrowedBooks = async () => {
     try {
-      setLoading(true); // Set loading to true when fetching starts
+      setLoading(true);
       const response = await axiosInstance.get("/issue/borrowed-books");
-      console.log("res : ", response);
       if (response.data) {
-        console.log("response.data : ", response.data);
         setBooks(response.data.books);
       }
     } catch (error) {
-      console.error("Error fetching requested books:", error);
+      console.error("Error fetching borrowed books:", error);
     } finally {
-      setLoading(false); // Set loading to false when fetching is done
+      setLoading(false);
     }
   };
 
-  // Filter books based on the search input for user name or book title
+  const markAsReturned = async (bookId) => {
+    try {
+      setreturnLoader(true)
+      const response = await axiosInstance.get(`/issue/return/${bookId}`, {
+        bookId,
+      });
+      if (response.data) {
+        // Update the books list to reflect the returned book
+        fetchBorrowedBooks();
+        // filteredBooks
+        toast.success("Book marked as returned successfully");
+      } else {
+        toast.error("Error marking book as returned");
+      }
+    } catch (error) {
+      console.error("Error marking book as returned:", error);
+    }finally{
+      setreturnLoader(false);
+    }
+  };
+
   const filteredBooks = books.filter(
     (book) =>
       book.book.title.toLowerCase().includes(filter.toLowerCase()) ||
@@ -52,7 +72,7 @@ const BorrowedBooks = () => {
           />
         </div>
 
-        {/* Loader - using FiLoader icon */}
+        {/* Loader */}
         {loading ? (
           <div className="flex justify-center items-center h-40">
             <FiLoader className="animate-spin text-blue-500" size={40} />
@@ -62,7 +82,7 @@ const BorrowedBooks = () => {
             {filteredBooks.length > 0 ? (
               filteredBooks.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-4 rounded-lg shadow-sm hover:shadow-md transition duration-300"
                 >
                   {/* Book Details */}
@@ -87,10 +107,21 @@ const BorrowedBooks = () => {
                       </p>
                     </div>
                   </div>
+                  {/* "Mark Returned" Button */}
+                  <div className="mt-4 md:mt-0">
+                    <button
+                      onClick={() => markAsReturned(item._id)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:outline-none"
+                    >
+                     {returnLoader ? <FiLoader className="animate-spin" size={20} /> : " Mark Returned"}
+                    </button>
+                  </div>
                 </div>
               ))
             ) : (
-              <p className="text-center text-gray-500">No borrowed books found.</p>
+              <p className="text-center text-gray-500">
+                No borrowed books found.
+              </p>
             )}
           </div>
         )}
