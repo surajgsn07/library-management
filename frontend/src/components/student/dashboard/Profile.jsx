@@ -10,7 +10,7 @@ const ProfileComponent = () => {
     <div className="bg-gray-100 min-h-screen flex justify-center items-center py-10">
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-3xl">
         {/* Profile Header */}
-        <div className="flex items-center mb-8">
+        <div className="sm:flex items-center mb-8">
           <img
             src={user.profilePic }
             alt="Profile"
