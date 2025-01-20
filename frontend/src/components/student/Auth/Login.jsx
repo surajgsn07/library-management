@@ -36,6 +36,7 @@ const Login = () => {
       if (response.data) {
         dispatch(login({ user: response.data.user, type: "student" }));
         setCookie("accessToken", response.data.token);
+        setCookie("type" , "student");
         setSuccess(response.data.message || "Login successful!");
         setFormData({ rollNo: "", password: "" });
         navigate("/student/dashboard");

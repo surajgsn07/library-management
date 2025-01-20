@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import LandingPage from './components/LandingPae'
 import Login from './components/student/Auth/Login'
 import Register from './components/student/Auth/Register'
@@ -12,13 +12,46 @@ import Header from './components/Header'
 
 
 import { ToastContainer } from 'react-toastify';
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { getCookie, removeCookie } from './axiosConfig/cookieFunc'
+import axiosInstance from './axiosConfig/axiosConfig'
+import { login } from './store/authSlice'
 
 
 const App = () => {
+  const dispatch = useDispatch()
+  const fetchUser = async()=>{
+    const token = getCookie('accessToken');
+    if(!token){
+      return;
+    }
+
+    const type = getCookie('type');
+    try {
+      const response = await axiosInstance(`${type}/user`);
+      if(response.data){
+        const user = response.data.user;
+        dispatch(login({ user, type }));
+      }else{
+        removeCookie('accessToken');
+        removeCookie('type');
+      }
+    } catch (error) {
+      console.log("error : ",error);
+      removeCookie('accessToken');
+      removeCookie('type');
+    }
+  }
+
+
   const user = useSelector((state) => state.auth.user); 
   const type = useSelector((state) => state.auth.type);
   console.log({user, type})
+
+  useEffect(() => {
+    fetchUser();
+  }, [])
+  
   return (
     <div>
       <ToastContainer />

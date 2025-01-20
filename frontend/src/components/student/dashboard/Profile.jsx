@@ -5,6 +5,14 @@ import {Link} from "react-router-dom"
 const ProfileComponent = () => {
   // Hardcoded demo user data
   const user = useSelector((state) => state.auth.user);
+  if(!user){
+    return (
+    
+    <>
+    
+    <div className="flex justify-center items-center py-4">loading...</div></>
+    )
+  }
 
   return (
     <div className="bg-gray-100 min-h-screen flex justify-center items-center py-10">

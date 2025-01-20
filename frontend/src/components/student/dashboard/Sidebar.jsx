@@ -80,6 +80,7 @@ const StudentSidebar = () => {
               onClick={() => {
                 if (item.path === "/logout") {
                   removeCookie("accessToken");
+                  removeCookie("type");
                   dispatch(logout());
                   navigate("/");
                 }

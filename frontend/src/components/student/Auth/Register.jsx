@@ -50,6 +50,7 @@ const Register = () => {
       if (response.data) {
         dispatch(login({ user: response.data.user, type: "student" }));
         setCookie("accessToken", response.data.token);
+        setCookie("type" , "student");
         navigate("/student/dashboard");
         setSuccess(response.data.message || "Registration successful!");
         setFormData({

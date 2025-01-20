@@ -36,6 +36,8 @@ const AdminLogin = () => {
         const user = response.data.user;
         const token = response.data.token;
         setCookie('accessToken', token);
+        
+        setCookie("type" , "admin");
         dispatch(login({ user, type: 'admin' }));
         navigate('/admin/dashboard');
       }

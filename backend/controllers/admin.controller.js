@@ -61,3 +61,16 @@ export const loginAdmin = async (req, res) => {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
+
+
+export const getAdmin = async (req, res) => {
+  try {
+    const admin = await Admin.findById(req.user._id);
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+    res.status(200).json({ user:admin });
+  } catch (error) {      
+    res.status(500).json({ message: "Error fetching admin", error: error.message });
+  }
+};
