@@ -25,6 +25,6 @@ export const validateEmail = (email) => {
     today.setHours(0, 0, 0, 0);
     inputDate.setHours(0, 0, 0, 0);
     
-    return inputDate <= today; // Date should not be after today
+    return inputDate >= today; // Date should not be after today
   };
   

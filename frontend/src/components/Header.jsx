@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { logout } from '../store/authSlice';
+import { removeCookie } from '../axiosConfig/cookieFunc';
 
 const Header = () => {
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  
   
 
   return (
@@ -17,6 +24,22 @@ const Header = () => {
           <h1 className="text-2xl font-bold">Library System</h1>
         </Link>
 
+                <div>
+                  {
+                    user ? <>
+                    <button onClick={()=>{
+                      removeCookie("accessToken");
+                      removeCookie("type");
+                      dispatch(logout());
+                      navigate("/");
+                    }} className='px-4 py-2 bg-red-700 text-white rounded-md' >Logout</button></>:<>
+                    
+                  <a href='#login'  className='px-4 py-2 bg-amber-500 text-white rounded-md' >Login</a></>
+
+                  }
+                  
+                
+                </div>
 
       </div>
     </header>

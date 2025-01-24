@@ -1,3 +1,5 @@
+
+import { uploadToCloudinary } from '../utils/cloudinary.js'; // Ensure correct import path
 import { Book } from '../models/book.model.js';
 import { Issue } from '../models/issue.model.js';
 
@@ -146,25 +148,51 @@ export const searchBooks = async (req, res) => {
   }
 };
 
-
 export const addPicture = async (req, res) => {
-    try {
-      const { bookId  } = req.body;
-      const image = req.file;
+  try {
+    const { bookId } = req.body;
+    const picture = req.file;
 
-      console.log({bookId , image})
+    if (!bookId || !picture) {
+      return res.status(400).json({ message: 'Book ID and picture are required' });
+    }
+
+    // Find the book by ID
+    const book = await Book.findById(bookId);
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    // Upload picture to Cloudinary
+    const uploadResult = await uploadToCloudinary(picture.path); // Assuming multer stores file path in `path`
+    if (!uploadResult) {
+      return res.status(500).json({ message: 'Error uploading picture to Cloudinary' });
+    }
+
+    // Update book picture field with the Cloudinary URL
+    book.picture = uploadResult.secure_url;
+    await book.save();
+
+    res.status(200).json({ message: 'Book picture updated successfully', book });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating book picture', error: error.message });
+  }
+};
+
+
+
+export const getBooksByGenre = async (req, res) => {
+    try {
+      const { genre } = req.params;
   
-      const book = await Book.findById(bookId);
+      const books = await Book.find({ genre });
   
-      if (!book) {
-        return res.status(404).json({ message: 'Book not found' });
+      if (books.length === 0) {
+        return res.status(404).json({ message: 'No books found for this genre' });
       }
   
-      book.picture = image;
-      await book.save();
-  
-      res.status(200).json({ message: 'Book picture updated successfully', book });
+      res.status(200).json({ books });
     } catch (error) {
-      res.status(500).json({ message: 'Error updating book picture', error: error.message });
+      res.status(500).json({ message: 'Error fetching books by genre', error: error.message });
     }
   };

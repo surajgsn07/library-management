@@ -1,27 +1,27 @@
-import React, { useRef, useState } from 'react';
-import axios from 'axios';
-import axiosInstance from '../../../axiosConfig/axiosConfig';
+import React, { useRef, useState } from "react";
+import axios from "axios";
+import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FiCamera } from "react-icons/fi";
-import { validateQuantity } from '../../../utils/Validation';
+import { validateQuantity } from "../../../utils/Validation";
 
 const SearchBooks = () => {
   const [formData, setFormData] = useState({
-    author: '',
-    isbn: '',
-    title: '',
-    genre: '',
-    name: '',
+    author: "",
+    isbn: "",
+    title: "",
+    genre: "",
+    name: "",
   });
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(false);  // Search Loading
+  const [loading, setLoading] = useState(false); // Search Loading
   const [addLoading, setAddLoading] = useState(false); // Add Quantity Loading
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showAddMoreModal, setShowAddMoreModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const ref = useRef(null);
-  const [pic, setPic] = useState(null);
+  console.log({books})
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -35,12 +35,14 @@ const SearchBooks = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const response = await axiosInstance.get('/book/search', { params: formData });
+      const response = await axiosInstance.get("/book/search", {
+        params: formData,
+      });
       setBooks(response.data.books);
     } catch (err) {
-      setError('Error fetching books. Please try again.');
+      setError("Error fetching books. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,13 +64,16 @@ const SearchBooks = () => {
   // Confirm adding more books
   const confirmAddMore = async () => {
     setAddLoading(true);
-    try { 
-      if(validateQuantity(quantityToAdd) === false) {
-        toast.error('Please enter a valid quantity');
+    try {
+      if (validateQuantity(quantityToAdd) === false) {
+        toast.error("Please enter a valid quantity");
         setAddLoading(false);
         return;
       }
-      const response = await axiosInstance.post('/book/add-quantity', { id: selectedBook._id, quantityToAdd: quantityToAdd });
+      const response = await axiosInstance.post("/book/add-quantity", {
+        id: selectedBook._id,
+        quantityToAdd: quantityToAdd,
+      });
       if (response.data) {
         const updatedBooks = books.map((book) =>
           book._id === selectedBook._id
@@ -85,30 +90,35 @@ const SearchBooks = () => {
       setAddLoading(false);
     }
   };
+  const [uploadLoading, setUploadLoading] = useState(false);
 
-  const handleImageChange = async (bookId) => {
-    const file = ref.current.files[0];
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('bookId', bookId);
-
+  const handleImageChange = async () => {
+    console.log("first");
+    setUploadLoading(true);
     try {
-      const res = await axiosInstance.post('/book/addPicture', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const file = ref.current.files[0];
+      console.log({ file });
+      const formData = new FormData();
+      formData.append("bookId", selectedBook._id);
+      formData.append("picture", file);
+
+      const res = await axiosInstance.post("/book/addPicture", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       if (res.data) {
-        setBooks((prev) => {
-          if (prev._id === bookId) {
-            return { ...prev, picture: res.data.book.picture };
-          } else {
-            return prev;
-          }
-        });
+        setBooks((prevBooks) =>
+          prevBooks.map((book) =>
+            book._id === selectedBook._id
+              ? { ...book, picture: res.data.book.picture }
+              : book
+          )
+        );
       }
     } catch (error) {
-      console.log(error);
+      console.error("Image upload failed:", error);
+    } finally {
+      setUploadLoading(false);
     }
   };
 
@@ -121,10 +131,15 @@ const SearchBooks = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <h1 className="text-3xl font-semibold text-center mb-6">Search for Books</h1>
+      <h1 className="text-3xl font-semibold text-center mb-6">
+        Search for Books
+      </h1>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <form
+        onSubmit={handleSearch}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+      >
         <input
           type="text"
           name="author"
@@ -166,16 +181,14 @@ const SearchBooks = () => {
       </form>
 
       {/* Loading Spinner */}
-      {loading && (
-        <div className="text-center text-blue-600">Loading...</div>
-      )}
+      {loading && <div className="text-center text-blue-600">Loading...</div>}
 
       {/* Error Message */}
       {error && <div className="text-center text-red-600">{error}</div>}
 
       {/* Display Books */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {books.length > 0 ? (
+        {!loading && books.length > 0 ? (
           books.map((book) => (
             <div
               key={book._id}
@@ -183,7 +196,10 @@ const SearchBooks = () => {
             >
               {/* Add Picture Icon */}
               <button
-                onClick={() => ref.current.click()}
+                onClick={() => {
+                  setSelectedBook(book);
+                  ref.current.click();
+                }}
                 className="absolute top-2 right-2 bg-gray-100 hover:bg-gray-200 text-gray-600 p-2 rounded-full shadow-md"
               >
                 <FiCamera size={20} />
@@ -191,7 +207,10 @@ const SearchBooks = () => {
 
               {/* Book Cover Image */}
               <img
-                src={book.picture || '/default-book.jpg'}
+                src={
+                  uploadLoading ? "https://imgs.search.brave.com/j_t_lnGlB6mMn6GQZD6mVCC0wHDZWr4r-vmqH8PG2RY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTI0/OTg0NDY3NS92ZWN0/b3IvcHJlbG9hZGVy/LWljb24tdmVjdG9y/LWxvYWRpbmctcHJv/Z3Jlc3Mtcm91bmQt/YmFyLmpwZz9zPTYx/Mng2MTImdz0wJms9/MjAmYz1IM0xRd1FK/TkNxQ2J0cW9JRWFX/Snp4X0hjQnJCVnJq/N0l2S2s3LVJSTHpJ/PQ" : 
+                  book.picture
+                }
                 alt={book.title}
                 className="w-full h-56 object-cover"
               />
@@ -201,14 +220,16 @@ const SearchBooks = () => {
                 name="image"
                 hidden
                 ref={ref}
-                onChange={() => handleImageChange(book._id)}
+                onChange={(e) => handleImageChange()}
               />
 
               {/* Book Details */}
               <div className="p-4">
                 <h2 className="text-xl font-semibold truncate">{book.title}</h2>
                 <p className="text-gray-600">{book.author}</p>
-                <p className="text-gray-500">Available Quantity: {book.quantities}</p>
+                <p className="text-gray-500">
+                  Available Quantity: {book.quantities}
+                </p>
                 <button
                   onClick={() => openAddMoreModal(book)}
                   className="mt-4 bg-green-600 text-white p-2 rounded-md w-full"
@@ -219,7 +240,15 @@ const SearchBooks = () => {
             </div>
           ))
         ) : (
-          <div className="col-span-3 text-center text-gray-600">No books found</div>
+          <>
+            {!loading && (
+              <>
+                <div className="col-span-3 text-center text-gray-600">
+                  No books found
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
 
@@ -229,8 +258,9 @@ const SearchBooks = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
             <h2 className="text-xl font-semibold mb-4">Add More Books</h2>
             <p className="text-gray-600 mb-4">
-              Enter the quantity of{' '}
-              <span className="font-semibold">{selectedBook.title}</span> to add.
+              Enter the quantity of{" "}
+              <span className="font-semibold">{selectedBook.title}</span> to
+              add.
             </p>
             <input
               type="number"
@@ -251,7 +281,7 @@ const SearchBooks = () => {
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
                 disabled={addLoading}
               >
-                {addLoading ? 'Adding...' : 'Confirm'}
+                {addLoading ? "Adding..." : "Confirm"}
               </button>
             </div>
           </div>
@@ -262,8 +292,12 @@ const SearchBooks = () => {
       {showSuccessModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-xl font-semibold text-green-600 mb-4">Success!</h2>
-            <p className="text-gray-600">Quantity has been added successfully.</p>
+            <h2 className="text-xl font-semibold text-green-600 mb-4">
+              Success!
+            </h2>
+            <p className="text-gray-600">
+              Quantity has been added successfully.
+            </p>
             <button
               onClick={closeSuccessModal}
               className="bg-blue-600 text-white px-4 py-2 rounded-md w-full mt-4"
