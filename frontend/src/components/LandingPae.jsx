@@ -25,7 +25,7 @@ const LandingPage = () => {
   const handleReserveBook = (book) => {
     if (!user) {
       toast.error("Please login to reserve a book");
-      navigate("/student/login");
+      navigate("/student-login");
       return;
     }
     setselectedBook(book);

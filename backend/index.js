@@ -9,8 +9,8 @@ const PORT = 3000;
 
 connectDb();
 app.use(cors({
-    origin:"https://pcte-library.netlify.app",
-    // origin:"http://localhost:5173",
+    // origin:"https://pcte-library.netlify.app",
+    origin:"http://localhost:5173",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
