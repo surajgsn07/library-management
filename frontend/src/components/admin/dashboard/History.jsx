@@ -46,7 +46,7 @@ const History = () => {
 
   
   const exportExcel = () => {
-    exportToExcel(books, "BooksHistory.xlsx");
+    exportToExcel(history, "BooksHistory.xlsx");
   }
 
   useEffect(() => {
