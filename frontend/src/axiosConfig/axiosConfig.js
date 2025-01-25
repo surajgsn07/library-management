@@ -4,8 +4,8 @@ import Cookie from "universal-cookie";
 import { getCookie } from './cookieFunc';
 
 const axiosInstance = axios.create({
-  // baseURL:"https://library-management-0un7.onrender.com",
-  baseURL:"http://localhost:3000",
+  baseURL:"https://library-management-0un7.onrender.com",
+  // baseURL:"http://localhost:3000",
   withCredentials: true, 
 });
 
