@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FiLoader } from "react-icons/fi"; // Importing the loader icon from react-icons
 import {toast} from "react-toastify";
+import {exportToExcel} from "../../../utils/ConvertToExcel.js"
 
 
 const BorrowedBooks = () => {
@@ -51,12 +52,17 @@ const BorrowedBooks = () => {
       book.user.name.toLowerCase().includes(filter.toLowerCase())
   );
 
+  const exportExcel = () => {
+    exportToExcel(books, "BorrowedBooks.xlsx");
+  }
+
   useEffect(() => {
     fetchBorrowedBooks();
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen p-2 flex justify-center items-center">
+    <div className="bg-gray-100 relative min-h-screen p-2 flex justify-center items-center">
+      <button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded  absolute top-4 right-4" onClick={exportExcel} >Export to Excel</button>
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">

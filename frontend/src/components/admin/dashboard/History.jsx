@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FaSpinner } from 'react-icons/fa'; // Import the spinner icon from react-icons
+import { exportToExcel } from "../../../utils/ConvertToExcel";
 
 // Demo data for returned books
 const demoHistoryData = [
@@ -43,12 +44,18 @@ const History = () => {
     }
   };
 
+  
+  const exportExcel = () => {
+    exportToExcel(books, "BooksHistory.xlsx");
+  }
+
   useEffect(() => {
     fetchHistory();
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6 flex justify-center items-center">
+    <div className="bg-gray-100 min-h-screen p-6 flex justify-center items-center relative ">
+      <button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded  absolute top-4 right-4" onClick={exportExcel} >Export to Excel</button>
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
