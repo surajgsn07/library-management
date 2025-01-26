@@ -53,7 +53,24 @@ const BorrowedBooks = () => {
   );
 
   const exportExcel = () => {
-    exportToExcel(books, "BorrowedBooks.xlsx");
+    exportToExcel(flattenData(books), "BorrowedBooks.xlsx");
+  }
+
+  function flattenData(dataArray) {
+    return dataArray.map(entry => ({
+      transactionId: entry._id,
+      bookName: entry.book.name,
+      bookGenre: entry.book.genre,
+      bookAuthor: entry.book.author,
+      userName: entry.user.name,
+      userEmail: entry.user.email,
+      userPhone: entry.user.phoneNo,
+      rollNo: entry.user.rollNo,
+      issueDate: entry.issueDate,
+      returnDate: entry.returnDate,
+      expectedReturnDate: entry.expectedReturnDate,
+      type: entry.type
+    }));
   }
 
   useEffect(() => {

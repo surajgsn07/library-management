@@ -243,7 +243,7 @@ const LandingPage = () => {
                   className="inline-block w-64 overflow-hidden bg-white shadow-lg rounded-lg mx-2 p-6"
                 >
                   <img
-                    src={"https://placehold.co/600x400?text=" + book.title}
+                    src={book.picture}
                     alt={book.title}
                     className="w-full h-64 object-cover rounded-t-lg mb-4"
                   />

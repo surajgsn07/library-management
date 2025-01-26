@@ -44,11 +44,30 @@ const History = () => {
     }
   };
 
+  function flattenData(dataArray) {
+    return dataArray.map(entry => ({
+      transactionId: entry._id,
+      bookName: entry.book.name,
+      bookGenre: entry.book.genre,
+      bookAuthor: entry.book.author,
+      userName: entry.user.name,
+      userEmail: entry.user.email,
+      userPhone: entry.user.phoneNo,
+      rollNo: entry.user.rollNo,
+      issueDate: entry.issueDate,
+      returnDate: entry.returnDate,
+      expectedReturnDate: entry.expectedReturnDate,
+      type: entry.type
+    }));
+  }
+  
   
   const exportExcel = () => {
-    exportToExcel(history, "BooksHistory.xlsx");
+
+    exportToExcel(flattenData(history), "BooksHistory.xlsx");
   }
 
+  
   useEffect(() => {
     fetchHistory();
   }, []);
