@@ -22,6 +22,7 @@ import ExpandLibrary from "./components/student/dashboard/ExpandLibrary.jsx"
 import { Provider } from 'react-redux'
 import {store} from "./store/store.js"
 import AllBookSuggestions from './components/admin/dashboard/BookSuggestions.jsx'
+import ManageUsers from './components/admin/dashboard/ManageUsers.jsx'
 
 const router = createBrowserRouter([
   {
@@ -83,6 +84,9 @@ const router = createBrowserRouter([
           },{
             path:"/admin/dashboard/add-admin",
             element:<AdminRegister/>
+          },{
+            path:"/admin/dashboard/manage-users",
+            element:<ManageUsers/>
           }
         ]
       }

@@ -16,7 +16,7 @@ const Register = () => {
     rollNo: "",
     email: "",
     phoneNo: "",
-    password: "",
+    password: ""
   });
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -82,7 +82,6 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {[
               { name: "name", type: "text", label: "Name" },
-              { name: "class", type: "text", label: "Course" },
               { name: "rollNo", type: "number", label: "Roll Number" },
               { name: "email", type: "email", label: "Email" },
               { name: "phoneNo", type: "text", label: "Phone Number" , placeholder:"+91 9876543210" },
@@ -104,6 +103,34 @@ const Register = () => {
                 />
               </div>
             ))}
+
+            <div className="flex flex-col">
+              <label htmlFor="class" className="block text-gray-700">
+                Course
+              </label>
+              <select
+                id="class"
+                name="class"
+                value={formData.class}
+                onChange={handleChange}
+                className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#99231d] focus:border-transparent"
+                required
+              >
+                <option value="">Select course</option>
+                <option value="B.Tech">B.Tech</option>
+                <option value="M.Tech">M.Tech</option>
+                <option value="MCA">MCA</option>
+                
+                <option value="B.Tech">BCA</option>
+                <option value="M.Tech">B.Pharmacy</option>
+                <option value="MCA">BBA</option>
+                
+                <option value="B.Tech">B.Com</option>
+                <option value="M.Tech">FD</option>
+                <option value="MCA">BAJMC</option>
+              </select>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}

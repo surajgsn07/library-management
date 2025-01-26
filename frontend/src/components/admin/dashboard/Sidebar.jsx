@@ -9,6 +9,7 @@ import SearchBooks from './SearchBook';
 import { removeCookie } from '../../../axiosConfig/cookieFunc';
 import { useDispatch } from 'react-redux';
 import {logout} from "../../../store/authSlice" 
+import { FaUser } from "react-icons/fa";
 
 const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to toggle sidebar on small screens
@@ -50,7 +51,11 @@ const menuItems = [
       path: '/admin/dashboard/book-suggestions',
       icon: <FaRegLightbulb className="h-5 w-5" />, 
     },
-
+    {
+      title: 'Manage Users',
+      path: '/admin/dashboard/manage-users',
+      icon: <FaUser className="h-5 w-5" />,
+    },
   {
     title: 'Add Admin',  // New menu item for Add Admin
     path: '/admin/dashboard/add-admin',

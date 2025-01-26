@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 // User Registration
 export const registerUser = async (req, res) => {
   try {
-    const { name, className, rollNo, email, phoneNo, password } = req.body; // Renamed "class" to "className"
+    const { name, className, rollNo, email, phoneNo, password,course } = req.body; // Renamed "class" to "className"
 
     // Check if the user already exists
     const userExists = await User.findOne({ email });
@@ -19,6 +19,7 @@ export const registerUser = async (req, res) => {
       email,
       phoneNo,
       password,
+      course
     });
 
     // Save the user
@@ -77,3 +78,54 @@ export const getUser = async (req, res) => {
     res.status(500).json({ message: "Error fetching user", error: error.message });
   }
 };
+
+
+
+
+export const searchUser = async (req, res) => {
+  try {
+    // Extract query parameters
+    const { rollNo, name, class: userClass } = req.query;
+
+    // Build the query object dynamically
+    const query = {};
+    if (rollNo) query.rollNo = { $regex: rollNo, $options: "i" }; // Case-insensitive search for roll number
+    if (name) query.name = { $regex: name, $options: "i" }; // Case-insensitive search for name
+    if (userClass) query.class = { $regex: userClass, $options: "i" }; // Case-insensitive search for class
+
+    // Query the database with the dynamically built query object
+    const users = await User.find(query);
+
+    // Send the response with the matching users
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error searching users:", error.message);
+    res.status(500).json({ message: "Server error while searching for users." });
+  }
+};
+
+
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.studentid);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting user", error: error.message });
+  }
+};
+
+
+export const updateUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.studentid, req.body, { new: true });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ message: "User updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating user", error: error.message });
+  }
+}

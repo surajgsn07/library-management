@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { Issue } from "../models/issue.model.js";
 
 // Setup Nodemailer transporter using Gmail
-const transporter = nodemailer.createTransport({
+export const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: process.env.EMAIL, // Your Gmail address

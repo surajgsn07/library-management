@@ -1,6 +1,7 @@
 import { Issue } from "../models/issue.model.js";
 import { Book } from "../models/book.model.js";
 import { User } from "../models/user.models.js";
+import { transporter } from "../utils/Notification.js";
 
 // Create an Issue (Borrow a Book)
 export const createIssue = async (req, res) => {
@@ -29,9 +30,9 @@ export const createIssue = async (req, res) => {
 
     // Save the issue record
     await newIssue.save();
-
-    // Reduce the book's quantity
+    
     book.quantities -= 1;
+    
     await book.save();
 
     res
@@ -101,13 +102,13 @@ export const requestBook = async (req, res) => {
   try {
     
     const { expectedReturnDate  ,bookId} = req.body;
+    const user = req.user;
     const book = await Book.findById(bookId);
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
     }
 
-    book.quantities -= 1;
     await book.save();
 
     const newIssue = new Issue({
@@ -118,6 +119,15 @@ export const requestBook = async (req, res) => {
     });
 
     await newIssue.save();
+
+    const mailOptions = {
+      from: process.env.EMAIL, // Sender email
+      to: user.email,               // Receiver's email (from user data)
+      subject: `Request for a Book : ${book.title}`, // Email subject
+      text: `Hello ${user.name},\n\nA user has requested a book: ${book.title}.\n\nPlease Collect it from the library.\n\nThank you!.`, // Email body 
+    };
+
+    await transporter.sendMail(mailOptions);
 
     res.status(200).json({ message: "Book requested successfully" });
   } catch (error) {
@@ -264,7 +274,8 @@ export const acceptRequestedBook = async (req, res) => {
   try {
     const { issueId } = req.params;
 
-    const issue = await Issue.findById(issueId);
+    const issue = await Issue.findById(issueId).populate('user');
+    const user = req.user
 
     if (!issue) {
       return res.status(404).json({ message: "Issue not found" });
@@ -274,8 +285,35 @@ export const acceptRequestedBook = async (req, res) => {
       return res.status(400).json({ message: "Invalid issue type" });
     }
 
+    const book = await Book.findById(issue.book);
+
     issue.type = "Borrow";
     await issue.save();
+
+    
+    book.quantities -= 1;
+    
+    await book.save();
+
+    if(book.quantities<2){
+      const mailOptions = {
+        from: process.env.EMAIL, // Sender email
+        to: user.email,               // Receiver's email (from user data)
+        subject: `Alert : Low Stock of ${book.title}`, // Email subject
+        text: `Hello ${user.name},\n\nThis is an alert that the stock of the book "${book.title}" is low. Please make sure to add more books to the library.\n\nThank you!`, // Email body
+      };
+
+      await transporter.sendMail(mailOptions);
+    }
+
+    const mail = {
+      from: process.env.EMAIL, // Sender email
+      to: issue.user.email,               // Receiver's email (from user data)
+      subject: `Book Issued`, // Email subject
+      text: `Hello ${issue.user.name},\n\nThis is a confirmation that the book "${book.title}" has been accepted by the library. Please make sure to return it on time.\n\nThank you!`, // Email body
+    }
+
+    await transporter.sendMail(mail);
 
     res.status(200).json({ message: "Book accepted successfully" });
     }

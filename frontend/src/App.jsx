@@ -20,6 +20,8 @@ import { login } from './store/authSlice'
 
 const App = () => {
   const dispatch = useDispatch()
+  const user = useSelector((state) => state.auth.user);
+  console.log({user})
   const fetchUser = async()=>{
     const token = getCookie('accessToken');
     if(!token){
@@ -44,7 +46,7 @@ const App = () => {
   }
 
 
-  const user = useSelector((state) => state.auth.user); 
+  
   const type = useSelector((state) => state.auth.type);
   console.log({user, type})
 
