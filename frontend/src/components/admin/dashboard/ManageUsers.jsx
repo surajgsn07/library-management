@@ -127,26 +127,24 @@ const ManageUsers = () => {
         />
         
         <select
-                id="class"
-                name="class"
-                value={formData.course}
-                onChange={handleChange}
-                className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
-                placeholder="Course"
-              >
-                <option value="">Select course</option>
-                <option value="B.Tech">B.Tech</option>
-                <option value="M.Tech">M.Tech</option>
-                <option value="MCA">MCA</option>
-                
-                <option value="B.Tech">BCA</option>
-                <option value="M.Tech">B.Pharmacy</option>
-                <option value="MCA">BBA</option>
-                
-                <option value="B.Tech">B.Com</option>
-                <option value="M.Tech">FD</option>
-                <option value="MCA">BAJMC</option>
-              </select>
+  id="course" // Changed from "class" to "course"
+  name="course" // Changed from "class" to "course"
+  value={formData.course}
+  onChange={handleChange}
+  className="w-full mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent"
+  placeholder="Course"
+>
+  <option value="">Select course</option>
+  <option value="B.Tech">B.Tech</option>
+  <option value="M.Tech">M.Tech</option>
+  <option value="MCA">MCA</option>
+  <option value="BCA">BCA</option>
+  <option value="B.Pharmacy">B.Pharmacy</option>
+  <option value="BBA">BBA</option>
+  <option value="B.Com">B.Com</option>
+  <option value="FD">FD</option>
+  <option value="BAJMC">BAJMC</option>
+</select>
         <button
           type="submit"
           className="bg-blue-600 text-white p-3 rounded-md col-span-1 sm:col-span-3 lg:col-span-1"
