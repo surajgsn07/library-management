@@ -47,14 +47,14 @@ const History = () => {
   function flattenData(dataArray) {
     return dataArray.map(entry => ({
       transactionId: entry._id,
-      bookName: entry.book.name,
-      bookGenre: entry.book.genre,
-      bookAuthor: entry.book.author,
-      userName: entry.user.name,
-      userEmail: entry.user.email,
-      userPhone: entry.user.phoneNo,
-      rollNo: entry.user.rollNo,
-      issueDate: entry.issueDate,
+      bookName: entry.book?.name,
+      bookGenre: entry.book?.genre,
+      bookAuthor: entry.book?.author,
+      userName: entry?.user?.name,
+      userEmail: entry?.user?.email,
+      userPhone: entry.user?.phoneNo,
+      rollNo: entry.user?.rollNo,
+      issueDate: entry?.issueDate,
       returnDate: entry.returnDate,
       expectedReturnDate: entry.expectedReturnDate,
       type: entry.type
@@ -106,21 +106,21 @@ const History = () => {
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full">
                   <div className="flex-grow">
                     <h2 className="text-lg font-semibold text-gray-700">
-                      {record.book.title}
+                      {record.book?.title}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      Author: {record.book.author}
+                      Author: {record?.book?.author}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Borrowed by: {record.user.name} ({record.user.email})
+                      Borrowed by: {record?.user?.name} ({record?.user?.email})
                     </p>
                     <p className="text-sm text-gray-500">
                       Issue Date:{" "}
-                      {new Date(record.issueDate).toLocaleDateString()}
+                      {new Date(record.issueDate)?.toLocaleDateString()}
                     </p>
                     <p className="text-sm text-gray-500">
                       Return Date:{" "}
-                      {new Date(record.returnDate).toLocaleDateString()}
+                      {new Date(record.returnDate)?.toLocaleDateString()}
                     </p>
                   </div>
                 </div>
