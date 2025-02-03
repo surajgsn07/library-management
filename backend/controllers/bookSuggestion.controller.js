@@ -1,5 +1,6 @@
 import { Book } from "../models/book.model.js";
 import { BookSuggestion } from "../models/bookSuggestion.model.js";
+import { transporter } from "../utils/Notification.js";
 
 export const createBookSuggestion = async (req, res) => {
 
@@ -41,16 +42,22 @@ export const getAllBookSuggestions = async (req, res) => {
 export const bookAddedToLibrary = async (req, res) => {
 
     try {
-        const {bookId , quantities , isbn} = req.body;
-        const book = await BookSuggestion.findById(bookId);
+        const {bookId , quantities , isbn , title , author , genre , name} = req.body;
+        const book = await BookSuggestion.findById(bookId).populate("user");
         if(!book){
             return res.status(400).json({message: "Book not found"});
         }
 
-        const {title , genre , author} = book;
+        
+
+        if(!quantities || !isbn || !title || !author || !genre || !name){
+            return res.status(400).json({message: "All fields are required"});
+        }
+
+        
 
         const addedBook = new Book({
-            name: title,
+            name,
             genre,
             author,
             quantities,
@@ -64,6 +71,18 @@ export const bookAddedToLibrary = async (req, res) => {
         }
 
         await addedBook.save();
+
+        
+
+        const mailOptions = {
+            from: process.env.EMAIL, // Sender email
+            to: book.user.email,               // Receiver's email (from user data)
+            subject: `Book added to library : ${addedBook.title}`, // Email subject
+            text: `Hello ${book.user.name},\n\nA user has added a book to your library: ${addedBook.title}.\n\nPlease Collect it from the library.\n\nThank you!.`, // Email body 
+          };
+
+        await transporter.sendMail(mailOptions);
+          
 
         await BookSuggestion.findByIdAndDelete(bookId);
 

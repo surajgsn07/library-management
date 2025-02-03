@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
-import { FaSpinner } from 'react-icons/fa'; // Import the spinner icon from react-icons
+import { FaSpinner } from "react-icons/fa"; // Import the spinner icon from react-icons
 import { exportToExcel } from "../../../utils/ConvertToExcel";
 
 // Demo data for returned books
@@ -8,14 +8,14 @@ const demoHistoryData = [
   {
     id: 1,
     book: { title: "Book A", author: "Author A" },
-    user: { name: "John Doe", email: "john.doe@example.com" },
+    user: { name: "John Doe", email: "john.doe@example.com", rollNo: "12345" },
     issueDate: "2025-01-01",
     returnDate: "2025-01-15",
   },
   {
     id: 2,
     book: { title: "Book B", author: "Author B" },
-    user: { name: "Jane Smith", email: "jane.smith@example.com" },
+    user: { name: "Jane Smith", email: "jane.smith@example.com", rollNo: "67890" },
     issueDate: "2025-01-05",
     returnDate: "2025-01-20",
   },
@@ -27,9 +27,15 @@ const History = () => {
   const [loading, setLoading] = useState(true); // Add loading state
 
   // Filter returned books based on the search input
-  const filteredHistory = history.filter((record) =>
-    record.book.title.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredHistory = history.filter((record) => {
+    const searchTerm = filter.toLowerCase();
+    return (
+      record?.book?.title?.toLowerCase().includes(searchTerm) ||
+      record?.user?.name?.toLowerCase().includes(searchTerm) ||
+      record?.user?.email?.toLowerCase().includes(searchTerm) ||
+      String(record?.user?.rollNo)?.toLowerCase().includes(searchTerm) // Convert rollNo to string
+    );
+  });
 
   const fetchHistory = async () => {
     try {
@@ -44,37 +50,42 @@ const History = () => {
     }
   };
 
+  // Flatten data for Excel export
   function flattenData(dataArray) {
-    return dataArray.map(entry => ({
-      transactionId: entry._id,
-      bookName: entry.book?.name,
-      bookGenre: entry.book?.genre,
+    return dataArray.map((entry) => ({
+      transactionId: entry._id || entry.id,
+      bookName: entry.book?.title,
       bookAuthor: entry.book?.author,
-      userName: entry?.user?.name,
-      userEmail: entry?.user?.email,
-      userPhone: entry.user?.phoneNo,
-      rollNo: entry.user?.rollNo,
-      issueDate: entry?.issueDate,
-      returnDate: entry.returnDate,
-      expectedReturnDate: entry.expectedReturnDate,
-      type: entry.type
+      userName: entry.user?.name,
+      userEmail: entry.user?.email,
+      userPhone: entry.user?.phoneNo || "N/A",
+      rollNo: entry.user?.rollNo || "N/A",
+      issueDate: new Date(entry.issueDate).toLocaleDateString(),
+      returnDate: entry.returnDate
+        ? new Date(entry.returnDate).toLocaleDateString()
+        : "Not Returned",
     }));
   }
-  
-  
+
+  // Export data to Excel
   const exportExcel = () => {
-
     exportToExcel(flattenData(history), "BooksHistory.xlsx");
-  }
+  };
 
-  
   useEffect(() => {
     fetchHistory();
   }, []);
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6 flex justify-center items-center relative ">
-      <button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded  absolute top-4 right-4" onClick={exportExcel} >Export to Excel</button>
+    <div className="bg-gray-100 pt-16 min-h-screen p-6 flex justify-center items-center relative">
+      {/* Export to Excel Button */}
+      <button
+        className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded absolute top-4 right-4"
+        onClick={exportExcel}
+      >
+        Export to Excel
+      </button>
+
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -85,7 +96,7 @@ const History = () => {
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search by book title"
+            placeholder="Search by book title, user name, email, or roll number"
             className="w-full md:w-1/2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -93,7 +104,7 @@ const History = () => {
         {/* History List */}
         <div className="grid gap-6">
           {loading ? (
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center h-40">
               <FaSpinner className="animate-spin text-3xl text-blue-500" /> {/* Show spinner */}
             </div>
           ) : filteredHistory.length > 0 ? (
@@ -109,18 +120,22 @@ const History = () => {
                       {record.book?.title}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      Author: {record?.book?.author}
+                      Author: {record.book?.author}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Borrowed by: {record?.user?.name} ({record?.user?.email})
+                      Borrowed by: {record.user?.name} ({record.user?.email})
                     </p>
                     <p className="text-sm text-gray-500">
-                      Issue Date:{" "}
-                      {new Date(record.issueDate)?.toLocaleDateString()}
+                      Roll No: {record.user?.rollNo || "N/A"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Issue Date: {new Date(record.issueDate).toLocaleDateString()}
                     </p>
                     <p className="text-sm text-gray-500">
                       Return Date:{" "}
-                      {new Date(record.returnDate)?.toLocaleDateString()}
+                      {record.returnDate
+                        ? new Date(record.returnDate).toLocaleDateString()
+                        : "Not Returned"}
                     </p>
                   </div>
                 </div>

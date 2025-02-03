@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../../axiosConfig/axiosConfig";
 import { FiLoader } from "react-icons/fi"; // Importing the loader icon from react-icons
-import {toast} from "react-toastify";
-import {exportToExcel} from "../../../utils/ConvertToExcel.js"
-
+import { toast } from "react-toastify";
+import { exportToExcel } from "../../../utils/ConvertToExcel.js";
 
 const BorrowedBooks = () => {
   const [filter, setFilter] = useState("");
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [returnLoader, setreturnLoader] = useState(false)
+  const [returnLoader, setReturnLoader] = useState(false);
 
   const fetchBorrowedBooks = async () => {
     try {
@@ -27,49 +26,55 @@ const BorrowedBooks = () => {
 
   const markAsReturned = async (bookId) => {
     try {
-      setreturnLoader(true)
+      setReturnLoader(true);
       const response = await axiosInstance.get(`/issue/return/${bookId}`, {
         bookId,
       });
       if (response.data) {
         // Update the books list to reflect the returned book
         fetchBorrowedBooks();
-        // filteredBooks
         toast.success("Book marked as returned successfully");
       } else {
         toast.error("Error marking book as returned");
       }
     } catch (error) {
       console.error("Error marking book as returned:", error);
-    }finally{
-      setreturnLoader(false);
+    } finally {
+      setReturnLoader(false);
     }
   };
 
-  const filteredBooks = books.filter(
-    (book) =>
-      book.book.title.toLowerCase().includes(filter.toLowerCase()) ||
-      book.user.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  // Filter books based on book title, user name, or user rollNo
+  const filteredBooks = books.filter((book) => {
+    const searchTerm = filter.toLowerCase();
+    return (
+      book.book.title.toLowerCase().includes(searchTerm) ||
+      book.user.name.toLowerCase().includes(searchTerm) ||
+      String(book.user.rollNo).toLowerCase().includes(searchTerm) // Convert rollNo to string
+    );
+  });
 
+  // Export data to Excel
   const exportExcel = () => {
     exportToExcel(flattenData(books), "BorrowedBooks.xlsx");
-  }
+  };
 
+  // Flatten data for Excel export
   function flattenData(dataArray) {
-    return dataArray.map(entry => ({
+    return dataArray.map((entry) => ({
       transactionId: entry._id,
-      bookName: entry.book.name,
-      bookGenre: entry.book.genre,
+      bookName: entry.book.title,
       bookAuthor: entry.book.author,
       userName: entry.user.name,
       userEmail: entry.user.email,
       userPhone: entry.user.phoneNo,
       rollNo: entry.user.rollNo,
-      issueDate: entry.issueDate,
-      returnDate: entry.returnDate,
-      expectedReturnDate: entry.expectedReturnDate,
-      type: entry.type
+      issueDate: new Date(entry.issueDate).toLocaleDateString(),
+      returnDate: entry.returnDate
+        ? new Date(entry.returnDate).toLocaleDateString()
+        : "Not Returned",
+      expectedReturnDate: new Date(entry.expectedReturnDate).toLocaleDateString(),
+      type: entry.type,
     }));
   }
 
@@ -78,8 +83,15 @@ const BorrowedBooks = () => {
   }, []);
 
   return (
-    <div className="bg-gray-100 relative min-h-screen p-2 flex justify-center items-center">
-      <button className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded  absolute top-4 right-4" onClick={exportExcel} >Export to Excel</button>
+    <div className="bg-gray-100 pt-16  relative min-h-screen p-2 flex justify-center items-center">
+      {/* Export to Excel Button */}
+      <button
+        className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded absolute top-4 right-4"
+        onClick={exportExcel}
+      >
+        Export to Excel
+      </button>
+
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
@@ -90,7 +102,7 @@ const BorrowedBooks = () => {
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Search by book title or user name"
+            placeholder="Search by book title, user name, or roll number"
             className="w-full md:w-1/2 p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -121,8 +133,10 @@ const BorrowedBooks = () => {
                         Borrowed by: {item.user.name} ({item.user.email})
                       </p>
                       <p className="text-sm text-gray-500">
-                        Issue Date:{" "}
-                        {new Date(item.issueDate).toLocaleDateString()}
+                        Roll No: {item.user.rollNo}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Issue Date: {new Date(item.issueDate).toLocaleDateString()}
                       </p>
                       <p className="text-sm text-gray-500">
                         Expected Return Date:{" "}
@@ -130,13 +144,18 @@ const BorrowedBooks = () => {
                       </p>
                     </div>
                   </div>
+
                   {/* "Mark Returned" Button */}
                   <div className="mt-4 md:mt-0">
                     <button
                       onClick={() => markAsReturned(item._id)}
                       className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:outline-none"
                     >
-                     {returnLoader ? <FiLoader className="animate-spin" size={20} /> : " Mark Returned"}
+                      {returnLoader ? (
+                        <FiLoader className="animate-spin" size={20} />
+                      ) : (
+                        "Mark Returned"
+                      )}
                     </button>
                   </div>
                 </div>

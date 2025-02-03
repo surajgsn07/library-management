@@ -6,7 +6,7 @@ import { transporter } from "../utils/Notification.js";
 // Create an Issue (Borrow a Book)
 export const createIssue = async (req, res) => {
   try {
-    const { bookId, userId, expectedReturnDate } = req.body;
+    const { bookId, userId } = req.body;
 
     // Check if book exists
     const book = await Book.findById(bookId);
@@ -24,7 +24,6 @@ export const createIssue = async (req, res) => {
     const newIssue = new Issue({
       book: bookId,
       user: userId,
-      expectedReturnDate,
       type: "Borrow",
     });
 
@@ -272,8 +271,13 @@ export const getReturnedBooks = async (req, res) => {
 
 export const acceptRequestedBook = async (req, res) => {
   try {
-    const { issueId } = req.params;
+    const { issueId , expectedReturnDate } = req.params;
 
+    if(!expectedReturnDate){
+      return res.status(400).json({message:"Please enter a valid return date."});
+    }
+
+    
     const issue = await Issue.findById(issueId).populate('user');
     const user = req.user
 
@@ -288,10 +292,15 @@ export const acceptRequestedBook = async (req, res) => {
     const book = await Book.findById(issue.book);
 
     issue.type = "Borrow";
+    issue.expectedReturnDate = expectedReturnDate;
     await issue.save();
 
-    
+    if(book.quantities == 0){
+      return res.status(400).json({message:"Book out of stock"});
+    }
     book.quantities -= 1;
+
+    
     
     await book.save();
 

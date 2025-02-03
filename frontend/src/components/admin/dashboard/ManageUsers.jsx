@@ -32,13 +32,7 @@ const ManageUsers = () => {
     setLoading(true);
     setError("");
     try {
-      const searchQuery = formData.rollno || formData.name || formData.course;
-
-      if (!searchQuery) {
-        setError("Please enter a search term.");
-        setLoading(false);
-        return;
-      }
+      
 
       const response = await axiosInstance.get(`/student/search`, { params: formData });
       if (response.data) setUsers(response.data.users);

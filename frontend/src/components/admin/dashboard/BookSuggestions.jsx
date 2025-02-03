@@ -7,11 +7,16 @@ import { validateQuantity } from "../../../utils/Validation";
 const AllBookSuggestions = () => {
   const [filter, setFilter] = useState(""); // Search filter
   const [bookSuggestions, setBookSuggestions] = useState([]);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false); // Loading state for fetching
   const [modalOpen, setModalOpen] = useState(false); // Modal state
   const [selectedBook, setSelectedBook] = useState(null); // Selected book for adding to library
   const [quantity, setQuantity] = useState(1); // Quantity for adding
-  const [isbn, setisbn] = useState("")
+  const [isbn, setisbn] = useState("");
+  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [genre, setGenre] = useState("");
+  const [addingToLibrary, setAddingToLibrary] = useState(false); // Loading state for adding book to library
 
   const fetchBookSuggestions = async () => {
     try {
@@ -27,39 +32,42 @@ const AllBookSuggestions = () => {
     }
   };
 
-  // Filter book suggestions based on the search input for title or author
-  const filteredSuggestions = bookSuggestions.filter(
-    (book) =>
-      book.title.toLowerCase().includes(filter.toLowerCase()) ||
-      book.author.toLowerCase().includes(filter.toLowerCase())
-  );
-
   const handleAddToLibrary = async (id) => {
     try {
-        if(validateQuantity(quantity) === false){
-            return toast.error('Please enter a valid quantity');
-        }
-        if(!isbn){
-            return toast.error('Please enter ISBN');
-        }
+      if (validateQuantity(quantity) === false) {
+        return toast.error("Please enter a valid quantity");
+      }
+      if (!isbn) {
+        return toast.error("Please enter ISBN");
+      }
 
-        if(!quantity){
-            return toast.error('Please enter quantity');
-        }
-        const response = await axiosInstance.post("/suggestion/add-to-library", {
-            bookId : id,
-            quantities : quantity,
-            isbn
-        })
-        if(response.data){
-          console.log("response.data : ", response.data);
-          setBookSuggestions(bookSuggestions.filter((book) => book._id !== id));
-          toast.success('Book added to library successfully');
-          setModalOpen(false); 
-        }
+      if (!quantity) {
+        return toast.error("Please enter quantity");
+      }
+
+      setAddingToLibrary(true); // Start the loader
+
+      const response = await axiosInstance.post("/suggestion/add-to-library", {
+        bookId: id,
+        quantities: quantity,
+        isbn,
+        name,
+        title,
+        author,
+        genre,
+      });
+
+      if (response.data) {
+        console.log("response.data : ", response.data);
+        setBookSuggestions(bookSuggestions.filter((book) => book._id !== id));
+        toast.success("Book added to library successfully");
+        setModalOpen(false);
+      }
     } catch (error) {
-      console.log("Error adding book to library:", error);
-      toast.error('Error adding book to library');
+      console.log("Error adding book to library:", error.message);
+      toast.error("Error adding book to library: ", error.message);
+    } finally {
+      setAddingToLibrary(false); // Stop the loader
     }
   };
 
@@ -72,9 +80,7 @@ const AllBookSuggestions = () => {
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">
-            Book Suggestions
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Book Suggestions</h1>
           <input
             type="text"
             value={filter}
@@ -91,8 +97,8 @@ const AllBookSuggestions = () => {
           </div>
         ) : (
           <div className="grid gap-6">
-            {filteredSuggestions.length > 0 ? (
-              filteredSuggestions.map((suggestion) => (
+            {bookSuggestions.length > 0 ? (
+              bookSuggestions.map((suggestion) => (
                 <div
                   key={suggestion._id}
                   className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition duration-300"
@@ -100,7 +106,7 @@ const AllBookSuggestions = () => {
                   {/* Book Image */}
                   <div className="w-32 h-28 bg-gray-200 rounded-md overflow-hidden">
                     <img
-                      src={suggestion.picture || "default-image.jpg"} // Use a default image if no picture is available
+                      src={suggestion.picture || "default-image.jpg"}
                       alt={suggestion.title}
                       className="w-full h-full object-cover"
                     />
@@ -136,29 +142,60 @@ const AllBookSuggestions = () => {
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 pt-60 flex justify-center items-center z-50 overflow-scroll">
           <div className="bg-white rounded-lg p-6 w-96">
             <h2 className="text-2xl font-semibold text-gray-700 mb-4">Add to Library</h2>
-            <p className="text-lg text-gray-600 mb-4">
-              You are adding the book: <span className="font-bold">{selectedBook.title}</span>
-            </p>
 
-            {/* Quantity Input */}
-            <div className="mb-4">
-              <label className="block text-gray-700">Quantity</label>
-              <input
-                type="number"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                min="1"
-                className="w-full p-2 border rounded-lg mt-2"
-              />
-              <label className="block mt-2 text-gray-700">ISBN </label>
-              <input type="text" value={isbn} onChange={(e) => setisbn(e.target.value)} className="w-full p-2 border rounded-lg mt-2"  />
-            </div>
+            <label className="block text-gray-700">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 border rounded-lg mt-2"
+            />
 
-            {/* Modal Actions */}
-            <div className="flex justify-end">
+            <label className="block text-gray-700">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-2 border rounded-lg mt-2"
+            />
+
+            <label className="block text-gray-700">Author</label>
+            <input
+              type="text"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              className="w-full p-2 border rounded-lg mt-2"
+            />
+
+            <label className="block text-gray-700">Genre</label>
+            <input
+              type="text"
+              value={genre}
+              onChange={(e) => setGenre(e.target.value)}
+              className="w-full p-2 border rounded-lg mt-2"
+            />
+
+            <label className="block text-gray-700">Quantity</label>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              min="1"
+              className="w-full p-2 border rounded-lg mt-2"
+            />
+
+            <label className="block text-gray-700">ISBN</label>
+            <input
+              type="text"
+              value={isbn}
+              onChange={(e) => setisbn(e.target.value)}
+              className="w-full p-2 border rounded-lg mt-2"
+            />
+
+            <div className="flex justify-end mt-4">
               <button
                 onClick={() => setModalOpen(false)}
                 className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg mr-2"
@@ -166,10 +203,14 @@ const AllBookSuggestions = () => {
                 Cancel
               </button>
               <button
-                onClick={()=>(handleAddToLibrary(selectedBook._id))}
+                onClick={() => handleAddToLibrary(selectedBook._id)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg"
               >
-                Add to Library
+                {addingToLibrary ? (
+                  <FiLoader className="animate-spin text-white" size={20} />
+                ) : (
+                  "Add to Library"
+                )}
               </button>
             </div>
           </div>
